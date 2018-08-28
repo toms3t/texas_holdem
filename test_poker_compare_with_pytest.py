@@ -227,7 +227,6 @@ def test_community_4_tiebreaker():
     assert (hand.compare_with(other) == 'Loss')
 
 
-### Need to separate community cards from player cards to show this as a tie
 def test_community_4_tiebreaker2():
     '''
     Testing a community 4 of a kind tiebreaker when 5th community card is highest of all players
@@ -235,3 +234,28 @@ def test_community_4_tiebreaker2():
     hand = texas_poker.PokerHand('KD KC KS KH AD 8H 5D')
     other = texas_poker.PokerHand('KD KC KS KH AD 9H 5D')
     assert (hand.compare_with(other) == 'Tie')
+
+
+def test_community_4_tiebreaker3():
+    '''
+    Testing a community 4 of a kind tiebreaker when 5th community card is not the highest of all players
+    '''
+    hand = texas_poker.PokerHand('KD KC KS KH 4D 8H 5D')
+    other = texas_poker.PokerHand('KD KC KS KH 4D 9H 5D')
+    assert (hand.compare_with(other) == 'Loss')
+
+def test_two_royal_flushes_is_tie():
+    '''
+    Testing two Royal Flushes equals a Tie
+    '''
+    hand = texas_poker.PokerHand('KD AD QD JD TD 4H 5D')
+    other = texas_poker.PokerHand('KS AS QS JS TS JH 5D')
+    assert (hand.compare_with(other) == 'Tie')
+
+def test_straight_flush_tiebreaker():
+    '''
+    Testing higher top card of a straight flush tiebreaker wins
+    '''
+    hand = texas_poker.PokerHand('QD JD TD 9D 8D 4H 5D')
+    other = texas_poker.PokerHand('JS TS 9S 8S 7S JH 5S')
+    assert (hand.compare_with(other) == 'Win')
