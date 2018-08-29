@@ -31,7 +31,7 @@ class PokerTable:
         self.hand_dict = {}
         self.winner = []
         self.players_tied = []
-        self.unique_cards = []
+        self.all_player_cards = []
         if player1_hand and player2_hand and player3_hand:
             self.hand_dict = {1: player1_hand, 2: player2_hand, 3: player3_hand}
         else:
@@ -44,8 +44,10 @@ class PokerTable:
         for k, v in self.hand_dict.items():
             for card in v:
                 assert card not in self.board
-                self.unique_cards.append(card)
-        assert len(self.unique_cards) == len(set(self.unique_cards))
+                self.all_player_cards.append(card)
+        
+        # Verify that there are no duplicate cards between player hands
+        assert len(self.all_player_cards) == len(set(self.all_player_cards))
 
         for num, hand in enumerate(self.hand_dict.values(), 1):
             self.player_dict[num] = Player(self.board, hand)
@@ -194,12 +196,12 @@ class PokerTable:
 
 class Player:
     def __init__(self, board, hand):
-        # super().__init__()
         self.board = board
         self.hand = hand
         self.board_values = PokerTable.get_card_values(self.board)
         self.hand_values = PokerTable.get_card_values(self.hand)
         self.hand_and_board = self.hand + board
+        # self.hand_and_board_values = self.hand_values + self.board_values
         self.straight = False
         self.low_straight = False
         self.straight_score = 0
@@ -209,6 +211,7 @@ class Player:
         self.two_pair_score = 0
         self.two_pair_higher = 0
         self.two_pair_lower = 0
+        self.two_pair_kicker = 0
         self.three = False
         self.three_score = 0
         self.four = False
@@ -260,13 +263,19 @@ class Player:
             if self.card_values.count(val) == 2:
                 if self.one_pair and val != self.one_pair_score:
                     self.two_pair = True
+
                     if val > self.one_pair_score:
+                        self.two_pair_lower = self.one_pair_score
                         self.one_pair_score = val
                         self.two_pair_higher = val
-                        self.two_pair_lower = self.one_pair_score
                         self.two_pair_score = self.two_pair_higher
+
                 self.one_pair = True
                 self.one_pair_score = val
+            if not self.two_pair_kicker:
+                self.two_pair_kicker = val
+            if val != self.two_pair_higher and val != self.two_pair_lower and val > self.two_pair_kicker:
+                self.two_pair_kicker = val
             if self.card_values.count(val) == 3:
                 # Special case in which player has two three-of-a-kinds, which equates to a full house
                 if self.three and val != self.three_score:
@@ -491,11 +500,18 @@ class Player:
                 return 'Win'
             elif self.two_pair_higher < other.two_pair_higher:
                 return 'Loss'
-            kicker = self.find_highest_kicker(other)
-            if 'self' in kicker:
-                return 'Win'
-            elif 'other' in kicker:
-                return 'Loss'
+            else:
+                # for val in self.hand_and_board_values:
+                #     if not self.two_pair_kicker:
+                #         self.two_pair_kicker = val
+                #     if val != self.two_pair_higher and val != self.two_pair_lower and val > self.two_pair_kicker:
+                #         self.two_pair_kicker = val
+                if self.two_pair_kicker > other.two_pair_kicker:
+                    return 'Win'
+                elif self.two_pair_kicker < other.two_pair_kicker:
+                    return 'Loss'
+                else:
+                    return 'Tie'
         if self.one_pair:
             kicker = self.find_highest_kicker(other)
             if 'self' in kicker:
