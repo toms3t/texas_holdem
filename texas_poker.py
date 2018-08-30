@@ -20,7 +20,7 @@ class PokerTable:
         '2H', '3H', '4H', '5H', '6H', '7H', '8H', '9H', 'TH', 'JH', 'QH', 'KH', 'AH'
     ]
 
-    def __init__(self, players=10, board=None, player1_hand=None, player2_hand=None, player3_hand=None):
+    def __init__(self, players=2, board=None, player1_hand=None, player2_hand=None, player3_hand=None):
         self.suits = ['D', 'H', 'S', 'C']
         self.ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
         self.flop = []
@@ -32,8 +32,12 @@ class PokerTable:
         self.winner = []
         self.players_tied = []
         self.all_player_cards = []
-        if player1_hand and player2_hand and player3_hand:
-            self.hand_dict = {1: player1_hand, 2: player2_hand, 3: player3_hand}
+        if player1_hand:
+            self.hand_dict[1] = player1_hand
+        elif player2_hand:
+            self.hand_dict[2] = player2_hand
+        elif player3_hand:
+            self.hand_dict[3] = player3_hand
         else:
             for i in range(players):
                 self.hand_dict[i] = self.deal(2)
@@ -56,7 +60,6 @@ class PokerTable:
                 self.winner = (num, player)
                 continue
             elif player.result > self.winner[-1].result:
-                # self.winner.clear()
                 self.winner = (num, player)
                 continue
             elif player.result < self.winner[-1].result:
@@ -201,7 +204,6 @@ class Player:
         self.board_values = PokerTable.get_card_values(self.board)
         self.hand_values = PokerTable.get_card_values(self.hand)
         self.hand_and_board = self.hand + board
-        # self.hand_and_board_values = self.hand_values + self.board_values
         self.straight = False
         self.low_straight = False
         self.straight_score = 0
@@ -253,10 +255,7 @@ class Player:
                 self.high_card = v
 
     def identify_matched_cards(self):
-        two_pair_vals = []
-        i = 0
-        c = 0
-        highest = 0
+
         # Identifying matched cards (one-pair / two-pair / three-of-a-kind / four-of-a-kind / full-house)
 
         for val in self.card_values:
@@ -284,8 +283,6 @@ class Player:
                         self.three_score = val
                 self.three = True
                 self.three_score = val
-                self.one_pair = True
-                self.one_pair_score = val
             if self.card_values.count(val) == 4:
                 self.four = True
                 self.four_score = val
@@ -351,7 +348,7 @@ class Player:
         royal_nums = [10, 11, 12, 13, 14]
         flush_suit = ''
         if self.hand_breakout['H'] >= 5 or self.hand_breakout['D'] >= 5 \
-            or self.hand_breakout['S'] >= 5 or self.hand_breakout['C'] >= 5:
+                or self.hand_breakout['S'] >= 5 or self.hand_breakout['C'] >= 5:
             self.flush = True
             self.score = self.card_values[-1]
             for k, v in self.hand_breakout.items():
@@ -457,10 +454,8 @@ class Player:
                 return 'Loss'
             elif self.four_score == other.four_score:
                 if self.community_four_kicker_in_hand > other.community_four_kicker_in_hand:
-                    print (self.community_four_kicker_in_hand, other.community_four_kicker_in_hand)
                     return 'Win'
                 elif self.community_four_kicker_in_hand < other.community_four_kicker_in_hand:
-                    print(self.community_four_kicker_in_hand, other.community_four_kicker_in_hand)
                     return 'Loss'
                 return 'Tie'
         if self.full_house:
@@ -475,7 +470,6 @@ class Player:
             else:
                 return 'Tie'
         if self.flush:
-            print (self.flush_card_values, other.flush_card_values)
             for item in sorted(list(zip(self.flush_card_values, other.flush_card_values)), reverse=True):
                 if item[0] > item[1]:
                     return 'Win'
@@ -501,11 +495,6 @@ class Player:
             elif self.two_pair_higher < other.two_pair_higher:
                 return 'Loss'
             else:
-                # for val in self.hand_and_board_values:
-                #     if not self.two_pair_kicker:
-                #         self.two_pair_kicker = val
-                #     if val != self.two_pair_higher and val != self.two_pair_lower and val > self.two_pair_kicker:
-                #         self.two_pair_kicker = val
                 if self.two_pair_kicker > other.two_pair_kicker:
                     return 'Win'
                 elif self.two_pair_kicker < other.two_pair_kicker:
@@ -520,15 +509,6 @@ class Player:
                 return 'Loss'
             return 'Tie'
 
-        # if self.score == other.score:
-        #     for val in self.card_values[::-1]:
-        #         if val != self.score:
-        #             self.score = val
-        #             break
-        #     for val in other.card_values[::-1]:
-        #         if val != other.score:
-        #             other.score = val
-        #             break
         if self.high_card:
             kicker = self.find_highest_kicker(other)
             if 'self' in kicker:
@@ -537,11 +517,6 @@ class Player:
                 return 'Loss'
             else:
                 return 'Tie'
-        # if self.score > other.score:
-        #     return "Win"
-        # elif self.score < other.score:
-        #     return "Loss"
-        # return "Tie"
 
     def find_highest_kicker(self, other):
         '''
@@ -557,61 +532,6 @@ class Player:
                 return 'other' + str(y)
         return 'Tie'
 
-    # def compare_with(self, other_player):
-    # 	'''
-    # 	This function compares one hand to another and returns "Win", "Loss", or "Tie" from the perspective of self
-    # 	:param other: Separate object of type PokerTable class to compare with Self
-    # 	:return: String('Win', 'Loss', 'Tie')
-    # 	'''
-    # 	# other_hand = other_hand.split()
-    # 	# print ('asdfa',' '.join(other_hand + self.board))
-    # 	# other = PokerTable(' '.join(other_hand + self.board))
-    # 	# print ('o',other.best_hand)
-    # 	# print (self.hand, self.board, self.hand_and_board)
-    # 	# print (other.hand, other.board, other.hand_and_board)
-    # 	# self.result = self.get_hand_value()
-    # 	# other.result = other.get_hand_value()
-    # 	# if self.result > other.result:
-    # 	# 	return "Win"
-    # 	# if self.result < other.result:
-    # 	# 	return 'Loss'
-    #
-    # 	# Tiebreakers - higher score wins
-    # 	if self.result == other_player.result:
-    # 		if self.score > other_player.score:
-    # 			return 'Win'
-    # 		elif self.score < other_player.score:
-    # 			return 'Loss'
-    # 		else:
-    # 			if self.full_house:
-    # 				return self.tiebreaker(other_player)
-    # 			if self.high_card:
-    # 				return self.tiebreaker(other_player)
-    # 			if self.one_pair:
-    # 				return self.tiebreaker(other_player)
-    # 			if self.two_pair:
-    # 				return self.tiebreaker(other_player)
-    # 			if self.flush:
-    # 				return self.tiebreaker(other_player)
-    # 			if self.straight:
-    # 				return self.tiebreaker(other_player)
-    # 			if self.four:
-    # 				return self.tiebreaker(other_player)
-
-
-a = PokerTable(
-    3, board=['8S', 'JD', 'TC', '6H', 'JS'],
-    player1_hand=['8C', '6S'], player2_hand=['9C', '8H'], player3_hand=['AS', '3S']
-)
-for num, player in a.player_dict.items():
-    print ('Player'+str(num))
-    print (player.hand_and_board)
-    print (player.best_hand)
-    print ('\n')
-if a.players_tied:
-    print ('Players tied:', str(sorted(a.winner)))
-else:
-    print ('Player'+str(a.winner[0]), 'wins!')
 
 
 
