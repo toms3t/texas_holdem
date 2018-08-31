@@ -30,15 +30,15 @@ class PokerTable:
         self.player_dict = {}
         self.hand_dict = {}
         self.winner = []
-        self.players_tied = []
+        self.players_tied = {}
         self.all_player_cards = []
         if player1_hand:
             self.hand_dict[1] = player1_hand
-        elif player2_hand:
+        if player2_hand:
             self.hand_dict[2] = player2_hand
-        elif player3_hand:
+        if player3_hand:
             self.hand_dict[3] = player3_hand
-        else:
+        elif not player1_hand and not player2_hand and not player3_hand:
             for i in range(players):
                 self.hand_dict[i] = self.deal(2)
         if board:
@@ -57,97 +57,104 @@ class PokerTable:
             self.player_dict[num] = Player(self.board, hand)
         for num, player in self.player_dict.items():
             if not self.winner:
-                self.winner = (num, player)
+                self.winner = ('Player'+str(num), player)
                 continue
             elif player.result > self.winner[-1].result:
-                self.winner = (num, player)
+                # self.winner.clear()
+                self.winner = ('Player'+str(num), player)
                 continue
             elif player.result < self.winner[-1].result:
                 continue
             elif player.result == self.winner[-1].result:
                 if player.four:
                     if player.tiebreaker(self.winner[-1]) == 'Win':
-                        self.winner = (num, player)
-                        self.players_tied = []
+                        self.winner = ('Player'+str(num), player)
+                        self.players_tied = {}
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Loss':
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Tie':
-                        if not self.players_tied:
-                            self.players_tied.append(num)
-                            self.players_tied.append(self.winner[0])
-                        else:
-                            self.players_tied.append(num)
-                        continue
+                        self.players_tied[num] = player
+                        self.players_tied[self.winner[0]] = self.winner[-1]
                 if player.full_house:
                     if player.tiebreaker(self.winner[-1]) == 'Win':
-                        self.winner = (num, player)
+                        self.winner = ('Player'+str(num), player)
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Loss':
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Tie':
-                        self.players_tied.clear()
-                        self.players_tied.append(num)
-                        self.players_tied.append(self.winner[0])
+                        self.players_tied[num] = player
+                        self.players_tied[self.winner[0]] = self.winner[-1]
                         continue
                 if player.flush:
                     if player.tiebreaker(self.winner[-1]) == 'Win':
-                        self.winner = (num, player)
+                        self.winner = ('Player'+str(num), player)
+                        self.players_tied = {}
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Loss':
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Tie':
-                        self.players_tied.clear()
-                        self.players_tied.append(num)
-                        self.players_tied.append(self.winner[0])
+                        self.players_tied[num] = player
+                        self.players_tied[self.winner[0]] = self.winner[-1]
                         continue
                 if player.straight:
                     if player.tiebreaker(self.winner[-1]) == 'Win':
-                        self.winner = (num, player)
+                        self.winner = ('Player'+str(num), player)
+                        self.players_tied = {}
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Loss':
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Tie':
-                        self.players_tied.clear()
-                        self.players_tied.append(num)
-                        self.players_tied.append(self.winner[0])
+                        self.players_tied[num] = player
+                        self.players_tied[self.winner[0]] = self.winner[-1]
                         continue
                 if player.two_pair:
                     if player.tiebreaker(self.winner[-1]) == 'Win':
-                        self.winner = (num, player)
+                        self.winner = ('Player'+str(num), player)
+                        self.players_tied = {}
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Loss':
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Tie':
-                        self.players_tied.clear()
-                        self.players_tied.append(num)
-                        self.players_tied.append(self.winner[0])
+                        self.players_tied[num] = player
+                        self.players_tied[self.winner[0]] = self.winner[-1]
                         continue
                 if player.one_pair:
                     if player.tiebreaker(self.winner[-1]) == 'Win':
-                        self.winner = (num, player)
+                        self.winner = ('Player'+str(num), player)
+                        self.players_tied = {}
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Loss':
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Tie':
-                        self.players_tied.clear()
-                        self.players_tied.append(num)
-                        self.players_tied.append(self.winner[0])
+                        self.players_tied[num] = player
+                        self.players_tied[self.winner[0]] = self.winner[-1]
                         continue
                 if player.high_card:
                     if player.tiebreaker(self.winner[-1]) == 'Win':
-                        self.winner = (num, player)
+                        self.winner = ('Player'+str(num), player)
+                        self.players_tied = {}
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Loss':
                         continue
                     elif player.tiebreaker(self.winner[-1]) == 'Tie':
-                        self.players_tied.clear()
-                        self.players_tied.append(num)
-                        self.players_tied.append(self.winner[0])
+                        self.players_tied[num] = player
+                        self.players_tied[self.winner[0]] = self.winner[-1]
                         continue
 
         if self.players_tied:
             self.winner = self.players_tied
+
+    def __str__(self):
+        if self.players_tied:
+            print('Players Tied:')
+            for num, player in self.winner.items():
+                print('Player'+str(num))
+                print('HAND:', str(player.hand_and_board))
+            return str(self.winner)
+        print('Player'+str(self.winner[0]), 'wins')
+        print('HAND: ', self.winner[1].hand_and_board)
+        return 'Player'+str(self.winner[0]), 'wins'
 
     def create_board(self, *args):
         if args:
@@ -283,13 +290,15 @@ class Player:
                         self.three_score = val
                 self.three = True
                 self.three_score = val
-            if self.card_values.count(val) == 4:
+            if self.card_values.count(val) == 4 and not self.four:
                 self.four = True
                 self.four_score = val
                 non_four_card_val = 0
                 for board_val in self.board_values:
-                    if self.board_values.count(board_val) == 4:
+                    if self.board_values.count(board_val) == 4 and not self.board_four_val:
                         self.board_four_val = board_val
+                    elif self.board_values.count(board_val) == 4 and self.board_four_val:
+                        continue
                     else:
                         non_four_card_val = board_val
                 if self.board_four_val:
@@ -490,7 +499,6 @@ class Player:
             If both the top pair and the second pair are equal, the kicker (the next highest card) breaks the tie.
             """
             if self.two_pair_higher > other.two_pair_higher:
-                print (self.two_pair_higher, other.two_pair_higher)
                 return 'Win'
             elif self.two_pair_higher < other.two_pair_higher:
                 return 'Loss'
@@ -531,6 +539,11 @@ class Player:
             elif x < y:
                 return 'other' + str(y)
         return 'Tie'
+
+
+a = PokerTable(2, board=['AH', 'KS', 'AC', 'KD', 'AS'], player1_hand=['7H', 'AD'], player2_hand=['3C', '2C'])
+print(a.players_tied)
+print(a.winner[0])
 
 
 
