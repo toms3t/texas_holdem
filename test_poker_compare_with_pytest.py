@@ -70,7 +70,7 @@ def test_compare8():
     '''
     table = texas_poker.PokerTable(
         board=['3D', '4D', '5D', '6S', 'AC'], player1_hand=['7C', 'KH'], player2_hand=['7S', 'AS'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == ['Player1', 'Player2']
 
 
 def test_compare9():
@@ -78,8 +78,8 @@ def test_compare9():
     Testing higher pair of two pair wins
     '''
     table = texas_poker.PokerTable(
-        board=['KH', 'KS', '8C', '6D', 'TS'], player1_hand=['6S', '7C'], player2_hand=['8C', '9C'])
-    assert table.winner.name == 'Player1'
+        board=['KH', 'KS', '8C', '6D', 'TS'], player1_hand=['6S', '7C'], player2_hand=['8D', '9C'])
+    assert table.winner.name == 'Player2'
 
 
 def test_compare10():
@@ -87,17 +87,17 @@ def test_compare10():
     Testing higher 3 of a kind in a full house wins
     '''
     table = texas_poker.PokerTable(
-        board=['AH', 'AS', '7C', '7D', '8S'], player1_hand=['7C', 'KH'], player2_hand=['7S', '3S'])
-    assert table.winner.name == 'Player1'
+        board=['AH', 'AS', '7C', '7D', '8S'], player1_hand=['7H', 'KH'], player2_hand=['6S', 'AD'])
+    assert table.winner.name == 'Player2'
 
 
 def test_compare11():
     '''
-    Testing higher 3 of a kind in a full house wins
+    Testing full house tie
     '''
     table = texas_poker.PokerTable(
-        board=['5H', '5S', '4C', '8D', '8S'], player1_hand=['8S', 'KH'], player2_hand=['4D', '4S'])
-    assert table.winner.name == 'Player1'
+        board=['5H', '5S', '4C', '8D', '8H'], player1_hand=['8S', 'KH'], player2_hand=['8C', '4S'])
+    assert table.winner.name == ['Player1', 'Player2']
 
 
 def test_compare12():
@@ -106,7 +106,7 @@ def test_compare12():
     '''
     table = texas_poker.PokerTable(
         board=['3H', '5H', '7H', '8H', 'TD'], player1_hand=['2H', 'KS'], player2_hand=['TH', '8D'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == 'Player2'
 
 
 def test_compare13():
@@ -133,7 +133,7 @@ def test_compare15():
     '''
     table = texas_poker.PokerTable(
         board=['8H', '5D', '4C', '2D', 'TS'], player1_hand=['7D', '3D'], player2_hand=['9S', '3C'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == 'Player2'
 
 
 def test_compare16():
@@ -141,8 +141,8 @@ def test_compare16():
     Testing two pair tie
     '''
     table = texas_poker.PokerTable(
-        board=['8H', '8D', '4C', '3D', 'TS'], player1_hand=['3D', '6D'], player2_hand=['3H', '6H'])
-    assert table.winner.name == 'Player1'
+        board=['8H', '8D', '4C', '3D', 'TS'], player1_hand=['3S', '6D'], player2_hand=['3H', '6H'])
+    assert table.winner.name == ['Player1', 'Player2']
 
 
 def test_compare17():
