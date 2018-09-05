@@ -1,7 +1,7 @@
 import texas_poker
 
 
-def test_compare():
+def test_four_beats_two():
     '''
     Testing 4 aces beats two pair
     '''
@@ -10,7 +10,7 @@ def test_compare():
     assert table.winner.name == 'Player1'
 
 
-def test_compare2():
+def test_two_pair_beats_high_card():
     '''
     Testing high card loses to two pair
     '''
@@ -19,7 +19,7 @@ def test_compare2():
     assert table.winner.name == 'Player2'
 
 
-def test_higher_4():
+def test_higher_4_wins():
     '''
     Testing higher 4 of a kind wins
     '''
@@ -28,7 +28,7 @@ def test_higher_4():
     assert table.winner.name == 'Player1'
 
 
-def test_compare4():
+def test_full_house_beats_straight():
     '''
     Testing full house beats straight
     '''
@@ -37,7 +37,7 @@ def test_compare4():
     assert table.winner.name == 'Player1'
 
 
-def test_compare5():
+def test_4_beats_full_house():
     '''
     Testing full house loses to 4 of a kind
     '''
@@ -46,7 +46,7 @@ def test_compare5():
     assert table.winner.name == 'Player2'
 
 
-def test_compare6():
+def test_royal_beats_straight_flush():
     '''
     Testing royal flush beats straight flush
     '''
@@ -55,7 +55,7 @@ def test_compare6():
     assert table.winner.name == 'Player1'
 
 
-def test_compare7():
+def test_higher_straight_wins():
     '''
     Testing higher straight wins
     '''
@@ -64,7 +64,7 @@ def test_compare7():
     assert table.winner.name == 'Player2'
 
 
-def test_compare8():
+def test_straight_tie():
     '''
     Testing straight tie
     '''
@@ -73,7 +73,7 @@ def test_compare8():
     assert table.winner.name == ['Player1', 'Player2']
 
 
-def test_compare9():
+def test_two_pair_tiebreaker():
     '''
     Testing higher pair of two pair wins
     '''
@@ -82,7 +82,7 @@ def test_compare9():
     assert table.winner.name == 'Player2'
 
 
-def test_compare10():
+def test_higher_three_in_full_house_wins():
     '''
     Testing higher 3 of a kind in a full house wins
     '''
@@ -91,7 +91,7 @@ def test_compare10():
     assert table.winner.name == 'Player2'
 
 
-def test_compare11():
+def test_full_house_tie():
     '''
     Testing full house tie
     '''
@@ -100,7 +100,7 @@ def test_compare11():
     assert table.winner.name == ['Player1', 'Player2']
 
 
-def test_compare12():
+def test_highest_card_in_flush_tie_wins():
     '''
     Testing higher card of a flush wins
     '''
@@ -109,7 +109,7 @@ def test_compare12():
     assert table.winner.name == 'Player2'
 
 
-def test_compare13():
+def test_higher_4_wins2():
     '''
     Testing higher card of hand 4 of a kind wins
     '''
@@ -118,7 +118,7 @@ def test_compare13():
     assert table.winner.name == 'Player1'
 
 
-def test_compare14():
+def test_one_pair_beats_high_card():
     '''
     Testing one pair beats high card
     '''
@@ -127,7 +127,7 @@ def test_compare14():
     assert table.winner.name == 'Player1'
 
 
-def test_compare15():
+def test_high_card_tiebreaker():
     '''
     Testing higher card tiebreaker
     '''
@@ -136,7 +136,7 @@ def test_compare15():
     assert table.winner.name == 'Player2'
 
 
-def test_compare16():
+def test_two_pair_tie():
     '''
     Testing two pair tie
     '''
@@ -145,22 +145,22 @@ def test_compare16():
     assert table.winner.name == ['Player1', 'Player2']
 
 
-def test_compare17():
+def test_one_pair_tie():
     '''
     Testing one pair tie
     '''
     table = texas_poker.PokerTable(
         board=['8H', '8D', '5C', '4D', 'TS'], player1_hand=['9S', '6H'], player2_hand=['9C', '6C'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == ['Player1', 'Player2']
 
 
-def test_compare18():
+def test_high_card_tie():
     '''
     Testing high card tie
     '''
     table = texas_poker.PokerTable(
         board=['2H', '4D', '6C', '8D', 'TS'], player1_hand=['AH', 'KH'], player2_hand=['AS', 'KS'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == ['Player1', 'Player2']
 
 
 def test_ace_as_one():
@@ -187,7 +187,7 @@ def test_ace_as_one_straight_flush_loses():
     '''
     table = texas_poker.PokerTable(
         board=['AH', 'QH', '3H', '4H', '5H'], player1_hand=['7C', '7D'], player2_hand=['2H', 'QD'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == 'Player2'
 
 
 def test_ace_as_one_straight_loses():
@@ -196,16 +196,16 @@ def test_ace_as_one_straight_loses():
     '''
     table = texas_poker.PokerTable(
         board=['AD', '8C', '3H', '4C', '5H'], player1_hand=['QD', 'QH'], player2_hand=['9H', '2D'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == 'Player2'
 
 
-def test_full_house_tiebreaker():
+def test_community_full_house():
     '''
-    Testing full house tiebreaker
+    Testing community full house when one player has two three-of-a-kinds
     '''
     table = texas_poker.PokerTable(
         board=['KH', 'KC', '3S', '3H', '3D'], player1_hand=['8H', 'AH'], player2_hand=['7C', 'KS'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == 'Player2'
 
 
 def test_two_pair_tiebreaker():
@@ -214,7 +214,7 @@ def test_two_pair_tiebreaker():
     '''
     table = texas_poker.PokerTable(
         board=['KH', 'KC', '3S', '3H', '4D'], player1_hand=['8H', '5D'], player2_hand=['7C', 'QS'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == 'Player2'
 
 
 def test_community_4_tiebreaker():
@@ -222,8 +222,8 @@ def test_community_4_tiebreaker():
     Testing a community 4 of a kind tiebreaker
     '''
     table = texas_poker.PokerTable(
-        board=['KD', 'KC', 'KS', 'KH', '4D'], player1_hand=['8H', '5D'], player2_hand=['9H', '5D'])
-    assert table.winner.name == 'Player1'
+        board=['KD', 'KC', 'KS', 'KH', '4D'], player1_hand=['8H', '5D'], player2_hand=['9H', '5C'])
+    assert table.winner.name == 'Player2'
 
 
 def test_community_4_tiebreaker2():
@@ -231,8 +231,8 @@ def test_community_4_tiebreaker2():
     Testing a community 4 of a kind tiebreaker when 5th community card is highest of all players
     '''
     table = texas_poker.PokerTable(
-        board=['KD', 'KC', 'KS', 'KH', 'AD'], player1_hand=['8H', '5D'], player2_hand=['9H', '5D'])
-    assert table.winner.name == 'Player1'
+        board=['KD', 'KC', 'KS', 'KH', 'AD'], player1_hand=['8H', '5D'], player2_hand=['9H', '5C'])
+    assert table.winner.name == ['Player1', 'Player2']
 
 
 def test_community_4_tiebreaker3():
@@ -240,8 +240,8 @@ def test_community_4_tiebreaker3():
     Testing a community 4 of a kind tiebreaker when 5th community card is not the highest of all players
     '''
     table = texas_poker.PokerTable(
-        board=['KD', 'KC', 'KS', 'KH', '4D'], player1_hand=['8H', '5D'], player2_hand=['9H', '5D'])
-    assert table.winner.name == 'Player1'
+        board=['KD', 'KC', 'KS', 'KH', '4D'], player1_hand=['8H', '5D'], player2_hand=['9H', '5C'])
+    assert table.winner.name == 'Player2'
 
 
 def test_two_royal_flushes_is_tie():
@@ -249,14 +249,14 @@ def test_two_royal_flushes_is_tie():
     Testing two Royal Flushes equals a Tie
     '''
     table = texas_poker.PokerTable(
-        board=['KD', 'AD', 'QD', 'JD', 'TD'], player1_hand=['4H', '5D'], player2_hand=['JH', '5D'])
-    assert table.winner.name == 'Player1'
+        board=['KD', 'AD', 'QD', 'JD', 'TD'], player1_hand=['4H', '5D'], player2_hand=['JH', '5S'])
+    assert table.winner.name == ['Player1', 'Player2']
 
 
-def test_straight_flush_tiebreaker():
+def test_straight_flush_tie():
     '''
-    Testing higher top card of a straight flush tiebreaker wins
+    Testing community straight flush tie
     '''
     table = texas_poker.PokerTable(
         board=['QD', 'JD', 'TD', '9D', '8D'], player1_hand=['4H', '5D'], player2_hand=['JH', '5S'])
-    assert table.winner.name == 'Player1'
+    assert table.winner.name == ['Player1', 'Player2']
