@@ -13,6 +13,12 @@ def test_high_card_tiebreaker2():
     assert table.winner.name == 'Player1'
 
 
+def test_one_pair_beats_high_card():
+    table = texas_poker.PokerTable(
+        board=['7H', '5D', '4C', '2D', 'TS'], player1_hand=['7D', 'AD'], player2_hand=['9S', '3C'])
+    assert table.winner.name == 'Player1'
+
+
 def test_two_pair_beats_high_card():
     table = texas_poker.PokerTable(
         board=['2H', '4S', '6C', '8D', 'TS'], player1_hand=['3H', 'JH'], player2_hand=['2D', '4D'])
@@ -57,10 +63,70 @@ def test_straight_flush_beats_high_card():
 
 def test_royal_flush_beats_high_card():
     table = texas_poker.PokerTable(
-        board=['TH', 'JH', '9H', 'AH', '5C'], player1_hand=['2D', '9C'], player2_hand=['KH', 'QH'])
+        board=['TH', 'JH', '9H', 'AH', '5C'], player1_hand=['2D', '3C'], player2_hand=['KH', 'QH'])
+    assert table.winner.name == 'Player2'
+
+## Fix this
+def test_one_pair_tiebreaker():
+    table = texas_poker.PokerTable(
+        board=['7H', '9D', '4C', '2D', 'TS'], player1_hand=['7D', '3D'], player2_hand=['9S', '3C'])
     assert table.winner.name == 'Player2'
 
 
+def test_one_pair_tiebreaker2():
+    table = texas_poker.PokerTable(
+        board=['KH', 'QD', '4C', '2D', 'TS'], player1_hand=['7S', '7H'], player2_hand=['7D', '7C'])
+    assert table.winner.name == ['Player1', 'Player2']
+
+
+def test_two_pair_beats_one_pair():
+    table = texas_poker.PokerTable(
+        board=['2H', '4S', '6C', '8D', 'TS'], player1_hand=['3H', 'TH'], player2_hand=['2D', '4D'])
+    assert table.winner.name == 'Player2'
+
+
+def test_3_beats_one_pair():
+    table = texas_poker.PokerTable(
+        board=['2H', '4S', '6C', '8D', 'TS'], player1_hand=['8H', 'JH'], player2_hand=['4C', '4D'])
+    assert table.winner.name == 'Player2'
+
+
+def test_straight_beats_one_pair():
+    table = texas_poker.PokerTable(
+        board=['2H', '4S', '6C', '8D', 'TS'], player1_hand=['3H', '5H'], player2_hand=['TC', '9D'])
+    assert table.winner.name == 'Player1'
+
+
+def test_flush_beats_one_pair():
+    table = texas_poker.PokerTable(
+        board=['2H', '4S', '6C', '8C', 'QC'], player1_hand=['3H', 'QH'], player2_hand=['JC', '2C'])
+    assert table.winner.name == 'Player2'
+
+
+def test_full_house_beats_one_pair():
+    table = texas_poker.PokerTable(
+        board=['2H', '2S', '8D', '7C', 'QC'], player1_hand=['8H', '8S'], player2_hand=['JC', '3C'])
+    assert table.winner.name == 'Player1'
+
+
+def test_4_beats_one_pair():
+    table = texas_poker.PokerTable(
+        board=['2H', '2S', '3D', '8C', 'QC'], player1_hand=['2D', '2C'], player2_hand=['JC', '3C'])
+    assert table.winner.name == 'Player1'
+
+
+def test_straight_flush_beats_one_pair():
+    table = texas_poker.PokerTable(
+        board=['9H', '2C', '3C', '8C', '5C'], player1_hand=['2D', '9C'], player2_hand=['4C', '6C'])
+    assert table.winner.name == 'Player2'
+
+
+def test_royal_flush_beats_one_pair():
+    table = texas_poker.PokerTable(
+        board=['TH', 'JH', '9H', 'AH', '5C'], player1_hand=['2D', '9C'], player2_hand=['KH', 'QH'])
+    assert table.winner.name == 'Player2'
+    
+    
 def test_4_beats_two_pair():
     table = texas_poker.PokerTable(
         board=['2H', '3S', 'AC', 'AD', 'TS'], player1_hand=['AH', 'AS'], player2_hand=['3C', '2C'])
@@ -163,7 +229,7 @@ def test_high_card_tie():
     assert table.winner.name == ['Player1', 'Player2']
 
 
-def test_ace_as_one():
+def test_ace_as_one_in_straight():
     table = texas_poker.PokerTable(
         board=['AH', 'TD', '3C', '4D', '5S'], player1_hand=['2C', '7D'], player2_hand=['7S', '7H'])
     assert table.winner.name == 'Player1'
