@@ -198,7 +198,7 @@ def test_3_tiebreaker():
         board=['7H', '3D', '4C', '2D', '3S'], player1_hand=['9D', '3H'], player2_hand=['9S', '3C'])
     assert table.winner.name == ['Player1', 'Player2']
 
-#fix
+
 def test_3_tiebreaker2():
     table = texas_poker.PokerTable(
         board=['3H', 'AD', '4C', '2D', 'KS'], player1_hand=['AS', 'AH'], player2_hand=['KD', 'KC'])
@@ -384,7 +384,7 @@ def test_royal_flush_beats_4():
         board=['TS', 'JS', 'AS', '5D', '5C'], player1_hand=['5H', '5S'], player2_hand=['KS', 'QS'])
     assert table.winner.name == 'Player2'
 
-#fix
+
 def test_straight_flush_tiebreaker():
     table = texas_poker.PokerTable(
         board=['6H', '3H', '2H', '4H', '5H'], player1_hand=['AH', 'TH'], player2_hand=['7H', 'AC'])
