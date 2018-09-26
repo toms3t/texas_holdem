@@ -211,6 +211,12 @@ def test_3_tiebreaker2():
     assert table.winner.name == 'Player1'
 
 
+def test_3_tiebreaker3():
+    table = texas_poker.PokerTable(
+        board=['KC', 'AH', '8H', 'KS', 'KD'], player1_hand=['7H', '3H'], player2_hand=['5H', '9C'])
+    assert table.winner.name == 'Player2'
+
+
 def test_straight_beats_3():
     table = texas_poker.PokerTable(
         board=['3H', '8S', '6C', '9C', '7S'], player1_hand=['3S', '3D'], player2_hand=['TC', '9D'])
