@@ -414,7 +414,6 @@ class Player:
 			for item in sorted(list(zip(set(sorted(
 					self.straight_flush_vals, reverse=True)[:6]), set(
 					sorted(other.straight_flush_vals, reverse=True)[:6]))), reverse=True):
-				print(item)
 				if item[0] > item[1]:
 					return 'Win'
 				elif item[0] < item[1]:
@@ -461,7 +460,8 @@ class Player:
 				return 'Win'
 			elif self.three_score < other.three_score:
 				return 'Loss'
-			return 'Tie'
+			else:
+				return self.find_highest_kicker(other, 2)
 		if self.two_pair:
 			"""
 			Two Pairs - the higher ranked pair wins.   A-A-7-7-3 beats K-K-J-J-9. 
@@ -489,27 +489,23 @@ class Player:
 			elif self.one_pair_score < other.one_pair_score:
 				return 'Loss'
 			else:
-				return self.find_highest_kicker(other)
+				return self.find_highest_kicker(other, 3)
 		if self.high_card:
-			return self.find_highest_kicker(other)
+			return self.find_highest_kicker(other, 3)
 
-	def find_highest_kicker(self, other):
+	def find_highest_kicker(self, other, num_of_kickers):
 		'''
 		This function determines the card in the hand that is the highest
 		kicker (card that is not part of the hand played).
 		:param other: Separate object of type PokerTable class to compare with Self
+		:param num_of_kickers: Number of kickers that should be checked to break the tie
 		:return: Returns "Win", "Loss", or "Tie" depending on which player has highest kicker card
 		'''
+		self.single_values = sorted(self.single_values[-num_of_kickers:][::-1])
+		other.single_values = sorted(other.single_values[-num_of_kickers:][::-1])
 		for x, y in list(zip(self.single_values, other.single_values))[::-1]:
 			if x > y:
 				return 'Win'
 			elif x < y:
 				return 'Loss'
 		return 'Tie'
-
-print(PokerTable())
-# board = PokerTable(board=['8S', '7H', '5D', '6D', '9S'], player1_hand=['6C', 'JC'], player2_hand=['KS', 'JS'])
-# for player in board.players_tied:
-#     print(player.name)
-#     print(player.hand_and_board)
-#     print(player.best_hand)

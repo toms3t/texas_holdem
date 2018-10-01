@@ -79,6 +79,12 @@ def test_one_pair_tiebreaker2():
     assert table.winner.name == ['Player1', 'Player2']
 
 
+def test_one_pair_tiebreaker3():
+    table = texas_poker.PokerTable(
+        board=['6H', '2D', '4C', '8D', 'TS'], player1_hand=['4S', 'TH'], player2_hand=['3D', 'TC'])
+    assert table.winner.name == 'Player1'
+
+
 def test_two_pair_beats_one_pair():
     table = texas_poker.PokerTable(
         board=['2H', '4S', '6C', '8D', 'TS'], player1_hand=['3H', 'TH'], player2_hand=['2D', '4D'])
@@ -157,6 +163,12 @@ def test_two_pair_tiebreaker5():
     assert table.winner.name == ['Player1', 'Player2']
 
 
+def test_two_pair_tiebreaker6():
+    table = texas_poker.PokerTable(
+        board=['AH', 'AC', 'KC', 'KS', 'QC'], player1_hand=['9C', 'JH'], player2_hand=['5H', '9D'])
+    assert table.winner.name == ['Player1', 'Player2']
+
+
 def test_3_beats_two_pair():
     table = texas_poker.PokerTable(
         board=['2H', '4S', '6C', '8D', 'JS'], player1_hand=['8H', 'JH'], player2_hand=['4C', '4D'])
@@ -215,6 +227,12 @@ def test_3_tiebreaker3():
     table = texas_poker.PokerTable(
         board=['KC', 'AH', '8H', 'KS', 'KD'], player1_hand=['7H', '3H'], player2_hand=['5H', '9C'])
     assert table.winner.name == 'Player2'
+
+
+def test_3_tiebreaker4():
+    table = texas_poker.PokerTable(
+        board=['KC', 'AH', '3H', 'KS', 'KD'], player1_hand=['QH', '4H'], player2_hand=['5H', 'QC'])
+    assert table.winner.name == ['Player1', 'Player2']
 
 
 def test_straight_beats_3():
