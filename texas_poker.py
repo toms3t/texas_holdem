@@ -4,7 +4,7 @@ from random import choice
 
 class PokerTable:
 	"""
-	Based on Texas No-limit Hold'em Poker. Creates Poker game with specified # of players (default 2).
+	Based on Texas No-limit Hold'em Poker. Creates Poker game with specified # of players (default=2, max=23).
 	Deals a pair of cards to all players and deals the board (flop, turn, and river).
 	"""
 
@@ -81,28 +81,29 @@ class PokerTable:
 				elif player.tiebreaker(self.winner) == 'Loss':
 					continue
 				elif player.tiebreaker(self.winner) == 'Tie':
-					self.players_tied.append(player)
-					self.players_tied.append(self.winner)
+					player1_name = self.winner.name
+					player2_name = player.name
+					# print('z',player1_name, player2_name)
+					self.players_tied.append(player1_name)
+					self.players_tied.append(player2_name)
 					continue
 		if self.players_tied:
-			self.players_tied = sorted(self.players_tied, key=lambda x: x.name)
-			self.winner.name = [player.name for player in self.players_tied]
+			# self.players_tied = sorted(self.players_tied, key=lambda x: x.name)
+			self.winner.name = [player for player in self.players_tied]
 
 	def __str__(self):
-		###### FIX ########
-		if self.players_tied:
-			for player in self.players_tied:
-				print(player.name)
-				print(player.hand_and_board)
-				print(player.best_hand)
-				print('\n')
-			return str(self.players_tied)
 		for i in range(len(self.player_list)):
-			print(self.player_list[i].name)
+			if isinstance(self.player_list[i].name, list):
+				print(self.player_list[i].name[0])
+			else:
+				print(self.player_list[i].name)
 			print(self.player_list[i].hand_and_board)
 			print(self.player_list[i].best_hand)
 			print('\n')
-		return self.winner.name + ' wins!'
+		if self.players_tied:
+			self.winner.name = str([player for player in self.players_tied])
+			return self.winner.name + ' tied!'
+		return str(self.winner.name) + ' wins!'
 
 	def create_board(self, flop=False, next=False, all=False):
 			if flop:
@@ -509,3 +510,9 @@ class Player:
 			elif x < y:
 				return 'Loss'
 		return 'Tie'
+
+# table = PokerTable(
+#             board=['QS', 'JD', 'KH', '8S', 'KD'], player1_hand=['4H', '2D'], player2_hand=['3S', '2S'])
+# print(table.winner)
+# print(table)
+print(PokerTable(players=23))
