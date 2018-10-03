@@ -6,6 +6,7 @@ class PokerTable:
 	"""
 	Based on Texas No-limit Hold'em Poker. Creates Poker game with specified # of players (default=2, max=23).
 	Deals a pair of cards to all players and deals the board (flop, turn, and river).
+
 	"""
 
 	CARDMAP = {
@@ -62,8 +63,11 @@ class PokerTable:
 		# Verify that there are no duplicate cards between player hands
 		assert len(self.all_player_cards) == len(set(self.all_player_cards))
 
+		# Generate the list of player objects
 		for num, hand in enumerate(self.hand_dict.values(), 1):
 			self.player_list.append(Player(self.board, hand, name='Player'+str(num)))
+
+		# Loop through all players and compare hands to determine winner or tie
 		for player in self.player_list:
 			if not self.winner:
 				self.winner = player
@@ -83,15 +87,17 @@ class PokerTable:
 				elif player.tiebreaker(self.winner) == 'Tie':
 					player1_name = self.winner.name
 					player2_name = player.name
-					# print('z',player1_name, player2_name)
 					self.players_tied.append(player1_name)
 					self.players_tied.append(player2_name)
 					continue
 		if self.players_tied:
-			# self.players_tied = sorted(self.players_tied, key=lambda x: x.name)
 			self.winner.name = [player for player in self.players_tied]
 
 	def __str__(self):
+		"""
+		Prints player name and hand+board for each player. Then prints name of the winner(s).
+		:return: self.winner.name
+		"""
 		for i in range(len(self.player_list)):
 			if isinstance(self.player_list[i].name, list):
 				print(self.player_list[i].name[0])
@@ -106,29 +112,37 @@ class PokerTable:
 		return str(self.winner.name) + ' wins!'
 
 	def create_board(self, flop=False, next=False, all=False):
-			if flop:
-				self.flop = PokerTable.deal(3)
-				self.board += self.flop
-			elif next:
-				if self.flop and not self.turn:
-					self.turn = PokerTable.deal(1)
-					self.board += self.turn
-				elif (self.flop and self.turn) and not self.river:
-					self.river = PokerTable.deal(1)
-					self.board += self.river
-				else:
-					self.flop = PokerTable.deal(3)
-					self.board += self.flop
-			elif all:
-				self.river = PokerTable.deal(5)
+		"""
+		Method that deals the flop, turn, and river cards (flop+turn+river = board). Sets the self.board attribute.
+		:param flop: Bool
+		:param next: Bool
+		:param all: Bool
+		:return: None
+		"""
+		if flop:
+			self.flop = PokerTable.deal(3)
+			self.board += self.flop
+		elif next:
+			if self.flop and not self.turn:
+				self.turn = PokerTable.deal(1)
+				self.board += self.turn
+			elif (self.flop and self.turn) and not self.river:
+				self.river = PokerTable.deal(1)
 				self.board += self.river
 			else:
-				self.board = PokerTable.deal(5)
+				self.flop = PokerTable.deal(3)
+				self.board += self.flop
+		elif all:
+			self.river = PokerTable.deal(5)
+			self.board += self.river
+		else:
+			self.board = PokerTable.deal(5)
 
 	@staticmethod
 	def deal(num_cards):
 		"""
-		Deals random cards to players or the board and removes dealt cards from the ALL_CARDS list.
+		Static method that deals random cards to players or the board
+		and removes dealt cards from the ALL_CARDS global list.
 		:param num_cards: Number of cards to deal.
 		:return: Returns list of cards that were randomly chosen.
 		"""
@@ -142,9 +156,9 @@ class PokerTable:
 	@staticmethod
 	def get_card_values(hand):
 		"""
-		This function takes in the hand as a list and parses out the card values('2' through 'A'),
+		This function takes in a player's hand as a list and parses out the card values('2' through 'A'),
 		then sorts the values low to high.
-		:return: Returns the numerical values of the card values in a given hand
+		:return: Returns the sorted numerical values of the card values in a given hand
 		(Jack = 11, Queen = 12, King = 13, Ace = 14).
 		"""
 		card_symbols = []
@@ -157,6 +171,15 @@ class PokerTable:
 
 
 class Player:
+	"""
+	The Player class represents each player in the game. One player instance is instantiated per player.
+	Class inputs are the board, the cards the player is dealt from the PokerTable class, and a name(optional).
+	The class takes the board cards plus the player cards and determines the best hand the player can use with 5 cards.
+	The best hand is identified and given a score (self.result) from 1(lowest) to 10(highest).
+	The score is used to determine the winner of the game. Tiebreakers are implemented using the rules
+	identified here (https://www.adda52.com/poker/poker-rules/cash-game-rules/tie-breaker-rules).
+
+	"""
 	def __init__(self, board, hand, name=None):
 		self.board = board
 		self.hand = hand
@@ -202,7 +225,7 @@ class Player:
 		self.identify_high_card()
 		self.identify_matched_cards()
 		self.identify_flush()
-		self.straight, self.low_straight, self.straight_score, self.straight_vals = \
+		self.straight, self.low_straight, self.straight_score, self.straight_values = \
 			self.identify_straight(self.card_values)
 		self.best_hand = self.identify_best_hand()
 		self.single_values = sorted([x for x in self.card_values if self.card_values.count(x) == 1])
@@ -210,6 +233,11 @@ class Player:
 		self.get_hand_value()
 
 	def identify_high_card(self):
+		"""
+		For a given hand + board, identifies the highest card by value. Sets the self.high_card attribute.
+		:return: None
+
+		"""
 
 		self.high_card_score = self.card_values[-1]
 		for k, v in PokerTable.CARDMAP.items():
@@ -217,8 +245,28 @@ class Player:
 				self.high_card = v
 
 	def identify_matched_cards(self):
+		"""
+		Identifying matched cards (one-pair / two-pair / three-of-a-kind / four-of-a-kind / full-house). This method
+		sets the following attributes:
+		self.one_pair
+		self.one_pair_score
+		self.two_pair
+		self.two_pair_score
+		self.three
+		self.three_score
+		self.four
+		self.four_score
+		self.board_four_val
+		self.community_four_kicker_in_hand
+		self.full_house
+		self.two_pair_lower
+		self.one_pair_score
+		self.two_pair_higher
+		self.two_pair_score
+		self.two_pair_kicker
 
-		# Identifying matched cards (one-pair / two-pair / three-of-a-kind / four-of-a-kind / full-house)
+		:return: None
+		"""
 
 		for val in self.card_values:
 			if self.card_values.count(val) == 2:
@@ -230,7 +278,6 @@ class Player:
 						self.one_pair_score = val
 						self.two_pair_higher = val
 						self.two_pair_score = self.two_pair_higher
-
 				self.one_pair = True
 				self.one_pair_score = val
 			if not self.two_pair_kicker:
@@ -265,11 +312,23 @@ class Player:
 
 	@staticmethod
 	def identify_straight(card_values):
+		"""
+		Identifies whether a set of cards equates to a "straight" (5 cards with consecutive values) in poker.
+		:param card_values: Values for each card
+		:return: straight bool, low_straight bool, straight_score
+		
+		"""
 		straight = 0
 		low_straight = False
-		straight_vals = []
+		straight_values = []
 
 		def identify_low_straight(card_vals):
+			"""
+			Identifies whether a set of cards equates to a "low straight" (Ace, 2, 3, 4, 5) in poker.
+			:param card_vals: Values for each card
+			:return: straight bool, low_straight bool, straight_score
+
+			"""
 			low_straight_flag = False
 			straight_score = 0
 			low_straight_nums = [2, 3, 4, 5, 14]
@@ -284,22 +343,22 @@ class Player:
 		z = 0
 		for val in unique_values[1:]:
 			if unique_values[z] + 1 == val:
-				straight_vals.append(unique_values[z])
+				straight_values.append(unique_values[z])
 				straight_counter += 1
 				z += 1
 				if straight_counter >= 4:
-					straight_vals.append(val)
+					straight_values.append(val)
 					continue
 			elif straight_counter >= 4 and unique_values[z] + 1 != val:
 				break
 			else:
 				z += 1
 				straight_counter = 0
-				straight_vals = []
+				straight_values = []
 		if straight_counter >= 4:
 			straight = True
-			score = straight_vals[-1]
-			return straight, low_straight, score, straight_vals
+			score = straight_values[-1]
+			return straight, low_straight, score, straight_values
 		low_straight, score = identify_low_straight(card_values)
 		return straight, low_straight, score, [score]
 
@@ -362,10 +421,11 @@ class Player:
 			return 'High Card'
 
 	def get_hand_value(self):
-		'''
+		"""
 		This function assigns a value to the best hand identified by "identify hand()".
 		:return: Returns the self.result value which is used to rank the value of a hand
-		'''
+
+		"""
 		if self.royal_flush:
 			self.result = 10
 			return self.result
@@ -398,17 +458,13 @@ class Player:
 			return self.result
 
 	def tiebreaker(self, other):
-		'''
-		This function determines the winning hand (breaks tie) if both hands are deemed the same (i.e. both one pair).
-		:param other: Separate object of type PokerTable class to compare with Self
+		"""
+		This method determines the winning hand if both hands are deemed the same (i.e. both one pair).
+		:param other: Separate object of type Player class to compare with Self
 		:return: String('Win','Loss','Tie') is returned when a tiebreaker is needed (both hands have same result)
-		'''
 
-		'''
-		Straights - the Straight with the highest top card wins.
-		A-K-Q-J-10 beats 10-9-8-7-6, as the A beats the 10. 
-		If both Straights contain cards of the same rank, it's a Tie.
-		'''
+		"""
+
 		if self.royal_flush:
 			return 'Tie'
 		if self.straight_flush:
@@ -464,11 +520,6 @@ class Player:
 			else:
 				return self.find_highest_kicker(other, 2)
 		if self.two_pair:
-			"""
-			Two Pairs - the higher ranked pair wins.   A-A-7-7-3 beats K-K-J-J-9. 
-			If the top pairs are equal, the second pair breaks the tie. 
-			If both the top pair and the second pair are equal, the kicker (the next highest card) breaks the tie.
-			"""
 			if self.two_pair_higher > other.two_pair_higher:
 				return 'Win'
 			elif self.two_pair_higher < other.two_pair_higher:
@@ -495,13 +546,13 @@ class Player:
 			return self.find_highest_kicker(other, 3)
 
 	def find_highest_kicker(self, other, num_of_kickers):
-		'''
+		"""
 		This function determines the card in the hand that is the highest
 		kicker (card that is not part of the hand played).
 		:param other: Separate object of type PokerTable class to compare with Self
 		:param num_of_kickers: Number of kickers that should be checked to break the tie
 		:return: Returns "Win", "Loss", or "Tie" depending on which player has highest kicker card
-		'''
+		"""
 		self.single_values = sorted(self.single_values[-num_of_kickers:][::-1])
 		other.single_values = sorted(other.single_values[-num_of_kickers:][::-1])
 		for x, y in list(zip(self.single_values, other.single_values))[::-1]:
