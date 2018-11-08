@@ -98,6 +98,7 @@ class PokerTable:
 		self.player_dict = {}
 		self.player_list = []
 		self.hand_dict = {}
+		self.player_hand_strength_dict = {}
 		self.winner = []
 		self.players_tied = []
 		self.players_tied_dict = {}
@@ -122,50 +123,24 @@ class PokerTable:
 			self.turn = self.board[3]
 			self.river = self.board[-1]
 
-			# Verify that there are no duplicate cards between the board and the players
+		# Verify that there are no duplicate cards between the board and the players
 		for k, v in self.hand_dict.items():
 			for card in v:
 				assert card not in self.board
 				self.all_player_cards.append(card)
 
-				# Verify that there are no duplicate cards between player hands
+		# Verify that there are no duplicate cards between player hands
 		assert len(self.all_player_cards) == len(set(self.all_player_cards))
 
-		# Generate the list of player objects
+		# Create the list of player objects
 		for num, hand in enumerate(self.hand_dict.values(), 1):
 			self.player_list.append(Player(self.board, hand, name="Player" + str(num)))
-
-		# Loop through all players and compare hands to determine winner or tie
+		# Create the dictionary of player names to player hand strength
 		for player in self.player_list:
-			if not self.winner:
-				self.winner = player
-				continue
-			elif player.hand_strength > self.winner.hand_strength:
-				self.winner = player
-				continue
-			elif player.hand_strength < self.winner.hand_strength:
-				continue
-			elif player.hand_strength == self.winner.hand_strength:
-				if player.tiebreaker(self.winner) == "Win":
-					self.winner = player
-					self.players_tied = []
-					continue
-				elif player.tiebreaker(self.winner) == "Loss":
-					continue
-				elif player.tiebreaker(self.winner) == "Tie":
-					player1_name = self.winner.name
-					player2_name = player.name
-					self.players_tied.append(player1_name)
-					self.players_tied.append(player2_name)
-					self.players_tied_dict[self.winner.best_hand] = []
-					self.players_tied_dict[self.winner.best_hand].append(player1_name)
-					self.players_tied_dict[self.winner.best_hand].append(player2_name)
-					continue
-		# Need to account for tied players with different hands (2 players with same full house and 2 with the same 3 of a kind)
-		# if self.players_tied and self.winner.name in self.players_tied:
-		if self.players_tied_dict:
-			print(self.players_tied_dict)
-			self.winner.name = [player for player in self.players_tied]
+			self.player_hand_strength_dict[player.name] = player.hand_strength
+		# Set "self.winner" as the player(s) with the best hand(s)
+		self.winner = sorted(
+			[k for k, v in self.player_hand_strength_dict.items() if v == max(self.player_hand_strength_dict.values())])
 
 	def __str__(self):
 		"""
@@ -180,10 +155,9 @@ class PokerTable:
 			print(self.player_list[i].hand_and_board)
 			print(self.player_list[i].best_hand)
 			print("\n")
-		if self.players_tied:
-			self.winner.name = str([player for player in self.players_tied])
-			return self.winner.name + " tied!"
-		return str(self.winner.name) + " wins!"
+		if len(self.winner) > 1:
+			return str(self.winner) + " tied!"
+		return str(''.join(self.winner)) + " wins!"
 
 	def create_board(self, flop=False, next=False, all=False):
 		"""
@@ -355,14 +329,12 @@ class Player:
 				if not self.one_pair:
 					self.one_pair = True
 					self.one_pair_score.append(val)
-				# NEED THIS??
-				# elif val > self.one_pair_score[0]:
-				# 	self.one_pair_score = [val]
 				if self.one_pair and val != self.one_pair_score[0]:
 					self.two_pair = True
 					if val > self.one_pair_score[0]:
 						self.two_pair_lower = self.one_pair_score[0]
 						self.two_pair_higher = val
+						self.one_pair_score.insert(0, val)
 				if len(self.one_pair_score) == 1:
 					self.one_pair_score += sorted(
 						[x for x in self.card_values if self.card_values.count(x) == 1], reverse=True)[:4]
@@ -404,7 +376,6 @@ class Player:
 				if self.board_four_val:
 					if max(self.hand_values) > non_four_card_val:
 						self.community_four_kicker_in_hand = max(self.hand_values)
-
 		if (
 				self.one_pair_score
 				and self.three_score
@@ -680,10 +651,14 @@ class Player:
 		return "Tie"
 
 
-table = PokerTable(
-	board=['5H', '5S', '4C', '8D', '8H'], player1_hand=['8S', 'KH'], player2_hand=['8C', '4S'])
-print(table.winner)
-print(table)
-print(table.player_list[0].hand_strength)
-print(table.player_list[1].hand_strength)
-# print(PokerTable(players=23))
+# table = PokerTable(
+# 	board=['2H', '4S', '2C', '2S', '4D'], player1_hand=['6S', '4H'], player2_hand=['4C', '8S'], player3_hand=['2D', 'TS'])
+# print(table.winner)
+# print(table)
+# print(table.player_list[0].hand_strength)
+# print(table.player_list[1].hand_strength)
+# print(table.player_list[2].hand_strength)
+# print(table.winner)
+# print(table.player_list[0].one_pair_score)
+# print(table.player_list[1].one_pair_score)
+print(PokerTable(players=23))
