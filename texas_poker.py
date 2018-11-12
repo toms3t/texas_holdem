@@ -4,8 +4,8 @@ from random import choice
 
 class PokerTable:
     """
-    Based on Texas No-limit Hold'em Poker. Creates Poker game with specified # of players (default=2, max=23).
-    Deals a pair of cards to all players and deals the board (flop, turn, and river).
+    Based on Texas No-limit Hold'em Poker. Creates Poker game with specified # of players (default=6, max=23).
+    The board and player hands can be set manually or dealt automatically at random.
     """
 
     CARDMAP = {
@@ -83,12 +83,7 @@ class PokerTable:
         self,
         players=6,
         board=None,
-        player1_hand=None,
-        player2_hand=None,
-        player3_hand=None,
-        player1_name="Player1",
-        player2_name="Player2",
-        player3_name="Player3",
+        player_dict=None
     ):
         self.flop = []
         self.turn = []
@@ -103,16 +98,9 @@ class PokerTable:
         self.winner_hand_and_board = []
         self.winner_best_hand = ''
         self.all_player_cards = []
-        self.player1_name = player1_name
-        self.player2_name = player2_name
-        self.player3_name = player3_name
-        if player1_hand:
-            self.hand_dict[1] = player1_hand
-        if player2_hand:
-            self.hand_dict[2] = player2_hand
-        if player3_hand:
-            self.hand_dict[3] = player3_hand
-        elif not player1_hand:
+        if player_dict:
+            self.hand_dict = player_dict
+        elif not player_dict:
             for i in range(players):
                 self.hand_dict[i] = self.deal(2)
         if board:
@@ -123,24 +111,28 @@ class PokerTable:
             self.turn = self.board[3]
             self.river = self.board[-1]
 
-            # Verify that there are no duplicate cards between the board and the player cards
+        # Verify that there are no duplicate cards between the board and the player cards
         for k, v in self.hand_dict.items():
             for card in v:
                 assert card not in self.board
                 self.all_player_cards.append(card)
 
-                # Verify that there are no duplicate cards between player hands
+        # Verify that there are no duplicate cards between player hands
         assert len(self.all_player_cards) == len(set(self.all_player_cards))
 
         # Create the list of player object instances
-        for num, hand in enumerate(self.hand_dict.values(), 1):
-            self.player_list.append(Player(self.board, hand, name="Player" + str(num)))
+        if player_dict:
+            for name, hand in self.hand_dict.items():
+                self.player_list.append(Player(self.board, hand, name=name))
+        else:
+            for num, hand in enumerate(self.hand_dict.values(), 1):
+                self.player_list.append(Player(self.board, hand, name="Player" + str(num)))
 
-            # Create the dictionary of player names and hand strength
+        # Create the dictionary of player names and hand strength
         for player in self.player_list:
             self.player_hand_strength_dict[player.name] = (player.best_hand, player.hand_and_board, player.hand_strength)
 
-            # Set "self.winner" as the player(s) with the best hand(s)
+        # Set "self.winner" as the player(s) with the best hand(s)
         self.winner = sorted(
             [
                 k
@@ -181,17 +173,13 @@ class PokerTable:
             print(player.hand_and_board)
             print(player.best_hand)
             print("\n")
-        if len(self.winner) > 1:
-            return str(self.winner) + " tied!"
-        return str("".join(self.winner)) + " wins!"
+        if len(self.get_winner) > 1:
+            return str(self.get_winner) + " tied!"
+        return str("".join(self.get_winner)) + " wins!"
 
     @property
     def get_winner(self):
         return self.winner
-
-    @property
-    def get_winner_hand(self):
-        return self.winner_hand_and_board
 
     @property
     def get_winner_hand_and_board(self):
@@ -375,7 +363,7 @@ class Player:
                         reverse=True,
                     )[:3]
 
-                    # Finding highest card to act as the fifth card kicker in case of a tie
+            # Finding highest card to act as the fifth card kicker in case of a tie
             if (
                 val != self.two_pair_higher
                 and val != self.two_pair_lower
@@ -416,7 +404,7 @@ class Player:
                     [x for x in set(self.card_values) if x != val], reverse=True
                 )[:1]
 
-                # Identifying a full house
+        # Identifying a full house
         if (
             self.one_pair_score
             and self.three_score
@@ -429,8 +417,8 @@ class Player:
     def _identify_low_straight(card_values):
         """
         Identifies whether a set of cards equates to a "low straight" (Ace, 2, 3, 4, 5) in poker.
-        :param card_values: Values for each card
-        :return: straight bool, low_straight bool, straight_score
+        :param card_values: Values for each card in player's hand and board
+        :return: low_straight bool, straight_score
 
         """
         low_straight_flag = False
@@ -585,4 +573,4 @@ class Player:
             return self.hand_strength
 
 
-# USAGE: print(PokerTable())
+print(PokerTable(players=23))
